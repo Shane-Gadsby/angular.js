@@ -173,6 +173,28 @@ function filterFilter() {
   };
 }
 
+// The default (substring-match) comparator is a pure function of its own arguments -- it doesn't
+// close over anything from createPredicateFn's scope -- so it's hoisted here and shared across
+// every call instead of being reallocated as a fresh closure on every filter invocation.
+function defaultFilterComparator(actual, expected) {
+  if (isUndefined(actual)) {
+    // No substring matching against `undefined`
+    return false;
+  }
+  if ((actual === null) || (expected === null)) {
+    // No substring matching against `null`; only match against `null`
+    return actual === expected;
+  }
+  if (isObject(expected) || (isObject(actual) && !hasCustomToString(actual))) {
+    // Should not compare primitives against objects, unless they have custom `toString` method
+    return false;
+  }
+
+  actual = lowercase('' + actual);
+  expected = lowercase('' + expected);
+  return actual.indexOf(expected) !== -1;
+}
+
 // Helper functions for `filterFilter`
 function createPredicateFn(expression, comparator, anyPropertyKey, matchAgainstAnyProp) {
   var shouldMatchPrimitives = isObject(expression) && (anyPropertyKey in expression);
@@ -181,24 +203,7 @@ function createPredicateFn(expression, comparator, anyPropertyKey, matchAgainstA
   if (comparator === true) {
     comparator = equals;
   } else if (!isFunction(comparator)) {
-    comparator = function(actual, expected) {
-      if (isUndefined(actual)) {
-        // No substring matching against `undefined`
-        return false;
-      }
-      if ((actual === null) || (expected === null)) {
-        // No substring matching against `null`; only match against `null`
-        return actual === expected;
-      }
-      if (isObject(expected) || (isObject(actual) && !hasCustomToString(actual))) {
-        // Should not compare primitives against objects, unless they have custom `toString` method
-        return false;
-      }
-
-      actual = lowercase('' + actual);
-      expected = lowercase('' + expected);
-      return actual.indexOf(expected) !== -1;
-    };
+    comparator = defaultFilterComparator;
   }
 
   predicateFn = function(item) {
