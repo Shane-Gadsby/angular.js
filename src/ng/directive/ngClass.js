@@ -132,9 +132,16 @@ function classDirective(name, selector) {
     if (isArray(classValue)) {
       classString = classValue.map(toClassString).join(' ');
     } else if (isObject(classValue)) {
-      classString = Object.keys(classValue).
-        filter(function(key) { return classValue[key]; }).
-        join(' ');
+      // Avoid allocating a closure here -- this runs on every digest cycle for every
+      // ngClass watch bound to an object expression, not just when the value changes.
+      var truthyKeys = [];
+      var keys = Object.keys(classValue);
+      for (var i = 0; i < keys.length; i++) {
+        if (classValue[keys[i]]) {
+          truthyKeys.push(keys[i]);
+        }
+      }
+      classString = truthyKeys.join(' ');
     } else if (!isString(classValue)) {
       classString = classValue + '';
     }
