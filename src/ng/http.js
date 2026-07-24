@@ -471,6 +471,21 @@ function $HttpProvider() {
           ? $injector.get(interceptorFactory) : $injector.invoke(interceptorFactory));
     });
 
+    // The interceptor set is fixed once this service is instantiated (interceptors can only be
+    // registered during the config phase, before $get runs), so the request/response interceptor
+    // lists derived from it can be computed once here instead of being rebuilt on every request.
+    var requestInterceptors = [];
+    var responseInterceptors = [];
+
+    forEach(reversedInterceptors, function(interceptor) {
+      if (interceptor.request || interceptor.requestError) {
+        requestInterceptors.unshift(interceptor.request, interceptor.requestError);
+      }
+      if (interceptor.response || interceptor.responseError) {
+        responseInterceptors.push(interceptor.response, interceptor.responseError);
+      }
+    });
+
     /**
      * A function to check request URLs against a list of allowed origins.
      */
@@ -1076,19 +1091,7 @@ function $HttpProvider() {
 
       $browser.$$incOutstandingRequestCount('$http');
 
-      var requestInterceptors = [];
-      var responseInterceptors = [];
       var promise = $q.resolve(config);
-
-      // apply interceptors
-      forEach(reversedInterceptors, function(interceptor) {
-        if (interceptor.request || interceptor.requestError) {
-          requestInterceptors.unshift(interceptor.request, interceptor.requestError);
-        }
-        if (interceptor.response || interceptor.responseError) {
-          responseInterceptors.push(interceptor.response, interceptor.responseError);
-        }
-      });
 
       promise = chainInterceptors(promise, requestInterceptors);
       promise = promise.then(serverRequest);
@@ -1105,8 +1108,6 @@ function $HttpProvider() {
 
           promise = promise.then(thenFn, rejectFn);
         }
-
-        interceptors.length = 0;
 
         return promise;
       }
@@ -1339,10 +1340,10 @@ function $HttpProvider() {
     function createShortMethods(names) {
       forEach(arguments, function(name) {
         $http[name] = function(url, config) {
-          return $http(extend({}, config || {}, {
-            method: name,
-            url: url
-          }));
+          var conf = config ? extend({}, config) : {};
+          conf.method = name;
+          conf.url = url;
+          return $http(conf);
         };
       });
     }
@@ -1351,11 +1352,11 @@ function $HttpProvider() {
     function createShortMethodsWithData(name) {
       forEach(arguments, function(name) {
         $http[name] = function(url, data, config) {
-          return $http(extend({}, config || {}, {
-            method: name,
-            url: url,
-            data: data
-          }));
+          var conf = config ? extend({}, config) : {};
+          conf.method = name;
+          conf.url = url;
+          conf.data = data;
+          return $http(conf);
         };
       });
     }
