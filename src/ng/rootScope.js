@@ -590,7 +590,7 @@ function $RootScopeProvider() {
 
         function $watchCollectionInterceptor(_value) {
           newValue = _value;
-          var newLength, key, bothNaN, newItem, oldItem;
+          var newLength, key, bothNaN, newItem, oldItem, keys, i, ii;
 
           // If the new value is undefined, then return undefined as the watch may be a one-time watch
           if (isUndefined(newValue)) return;
@@ -635,31 +635,32 @@ function $RootScopeProvider() {
               changeDetected++;
             }
             // copy the items to oldValue and look for changes.
-            newLength = 0;
-            for (key in newValue) {
-              if (hasOwnProperty.call(newValue, key)) {
-                newLength++;
-                newItem = newValue[key];
-                oldItem = oldValue[key];
+            keys = Object.keys(newValue);
+            newLength = keys.length;
+            for (i = 0, ii = newLength; i < ii; i++) {
+              key = keys[i];
+              newItem = newValue[key];
+              oldItem = oldValue[key];
 
-                if (key in oldValue) {
-                  // eslint-disable-next-line no-self-compare
-                  bothNaN = (oldItem !== oldItem) && (newItem !== newItem);
-                  if (!bothNaN && (oldItem !== newItem)) {
-                    changeDetected++;
-                    oldValue[key] = newItem;
-                  }
-                } else {
-                  oldLength++;
-                  oldValue[key] = newItem;
+              if (key in oldValue) {
+                // eslint-disable-next-line no-self-compare
+                bothNaN = (oldItem !== oldItem) && (newItem !== newItem);
+                if (!bothNaN && (oldItem !== newItem)) {
                   changeDetected++;
+                  oldValue[key] = newItem;
                 }
+              } else {
+                oldLength++;
+                oldValue[key] = newItem;
+                changeDetected++;
               }
             }
             if (oldLength > newLength) {
               // we used to have more keys, need to find them and destroy them.
               changeDetected++;
-              for (key in oldValue) {
+              keys = Object.keys(oldValue);
+              for (i = 0, ii = keys.length; i < ii; i++) {
+                key = keys[i];
                 if (!hasOwnProperty.call(newValue, key)) {
                   oldLength--;
                   delete oldValue[key];
@@ -690,10 +691,10 @@ function $RootScopeProvider() {
               }
             } else { // if object
               veryOldValue = {};
-              for (var key in newValue) {
-                if (hasOwnProperty.call(newValue, key)) {
-                  veryOldValue[key] = newValue[key];
-                }
+              var newKeys = Object.keys(newValue);
+              for (var i = 0, ii = newKeys.length; i < ii; i++) {
+                var key = newKeys[i];
+                veryOldValue[key] = newValue[key];
               }
             }
           }
