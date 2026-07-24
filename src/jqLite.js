@@ -876,6 +876,22 @@ function jqLiteIsDefaultPrevented() {
   return this.defaultPrevented;
 }
 
+function jqLiteTriggerHandlerPreventDefault() {
+  this.defaultPrevented = true;
+}
+
+function jqLiteTriggerHandlerIsDefaultPrevented() {
+  return this.defaultPrevented === true;
+}
+
+function jqLiteTriggerHandlerStopImmediatePropagation() {
+  this.immediatePropagationStopped = true;
+}
+
+function jqLiteTriggerHandlerIsImmediatePropagationStopped() {
+  return this.immediatePropagationStopped === true;
+}
+
 function jqLiteIsImmediatePropagationStopped() {
   return this.immediatePropagationStopped === true;
 }
@@ -1131,10 +1147,10 @@ forEach({
     if (eventFns) {
       // Create a dummy event to pass to the handlers
       dummyEvent = {
-        preventDefault: function() { this.defaultPrevented = true; },
-        isDefaultPrevented: function() { return this.defaultPrevented === true; },
-        stopImmediatePropagation: function() { this.immediatePropagationStopped = true; },
-        isImmediatePropagationStopped: function() { return this.immediatePropagationStopped === true; },
+        preventDefault: jqLiteTriggerHandlerPreventDefault,
+        isDefaultPrevented: jqLiteTriggerHandlerIsDefaultPrevented,
+        stopImmediatePropagation: jqLiteTriggerHandlerStopImmediatePropagation,
+        isImmediatePropagationStopped: jqLiteTriggerHandlerIsImmediatePropagationStopped,
         stopPropagation: noop,
         type: eventName,
         target: element
