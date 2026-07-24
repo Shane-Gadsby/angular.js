@@ -872,12 +872,30 @@ forEach({
   };
 });
 
+function jqLiteIsDefaultPrevented() {
+  return this.defaultPrevented;
+}
+
+function jqLiteIsImmediatePropagationStopped() {
+  return this.immediatePropagationStopped === true;
+}
+
+function jqLiteStopImmediatePropagation() {
+  this.immediatePropagationStopped = true;
+
+  if (this.stopPropagation) {
+    this.stopPropagation();
+  }
+
+  if (this.$$originalStopImmediatePropagation) {
+    this.$$originalStopImmediatePropagation.call(this);
+  }
+}
+
 function createEventHandler(element, events) {
   var eventHandler = function(event, type) {
     // jQuery specific api
-    event.isDefaultPrevented = function() {
-      return event.defaultPrevented;
-    };
+    event.isDefaultPrevented = jqLiteIsDefaultPrevented;
 
     var eventFns = events[type || event.type];
     var eventFnsLength = eventFns ? eventFns.length : 0;
@@ -885,23 +903,11 @@ function createEventHandler(element, events) {
     if (!eventFnsLength) return;
 
     if (isUndefined(event.immediatePropagationStopped)) {
-      var originalStopImmediatePropagation = event.stopImmediatePropagation;
-      event.stopImmediatePropagation = function() {
-        event.immediatePropagationStopped = true;
-
-        if (event.stopPropagation) {
-          event.stopPropagation();
-        }
-
-        if (originalStopImmediatePropagation) {
-          originalStopImmediatePropagation.call(event);
-        }
-      };
+      event.$$originalStopImmediatePropagation = event.stopImmediatePropagation;
+      event.stopImmediatePropagation = jqLiteStopImmediatePropagation;
     }
 
-    event.isImmediatePropagationStopped = function() {
-      return event.immediatePropagationStopped === true;
-    };
+    event.isImmediatePropagationStopped = jqLiteIsImmediatePropagationStopped;
 
     // Some events have special handlers that wrap the real handler
     var handlerWrapper = eventFns.specialHandlerWrapper || defaultHandlerWrapper;
