@@ -2752,9 +2752,11 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
                 addEventDirective(directives, nName, name);
               }
             } else {
-              // Update nName for cases where a prefix was removed
-              // NOTE: the .toLowerCase() is unnecessary and causes https://github.com/angular/angular.js/issues/16624 for ng-attr-*
-              nName = directiveNormalize(name.toLowerCase());
+              if (ngPrefixMatch || multiElementMatch) {
+                // Update nName for cases where a prefix was removed
+                // NOTE: the .toLowerCase() is unnecessary and causes https://github.com/angular/angular.js/issues/16624 for ng-attr-*
+                nName = directiveNormalize(name.toLowerCase());
+              }
               attrsMap[nName] = name;
 
               if (isNgAttr || !attrs.hasOwnProperty(nName)) {
