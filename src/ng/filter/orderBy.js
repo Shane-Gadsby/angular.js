@@ -591,12 +591,14 @@ function orderByFilter($parse) {
       // NOTE: We are adding an extra `tieBreaker` value based on the element's index.
       // This will be used to keep the sort stable when none of the input predicates can
       // distinguish between two elements.
+      var predicateValues = new Array(predicates.length);
+      for (var i = 0, ii = predicates.length; i < ii; i++) {
+        predicateValues[i] = getPredicateValue(predicates[i].get(value), index);
+      }
       return {
         value: value,
         tieBreaker: {value: index, type: 'number', index: index},
-        predicateValues: predicates.map(function(predicate) {
-          return getPredicateValue(predicate.get(value), index);
-        })
+        predicateValues: predicateValues
       };
     }
 
