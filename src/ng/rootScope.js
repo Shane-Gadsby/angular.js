@@ -117,6 +117,33 @@ function $RootScopeProvider() {
           $scope.$$childTail = $scope.$root = $scope.$$watchers = null;
     }
 
+    // Shared prototype methods for $emit/$broadcast event objects, so dispatching an event
+    // doesn't allocate fresh closures on every call (these fire far more often than watchers).
+    function ScopeEventBase(name, targetScope) {
+      this.name = name;
+      this.targetScope = targetScope;
+      this.defaultPrevented = false;
+    }
+    ScopeEventBase.prototype.preventDefault = function() {
+      this.defaultPrevented = true;
+    };
+
+    function ScopeEmitEvent(name, targetScope) {
+      ScopeEventBase.call(this, name, targetScope);
+      this.$$propagationStopped = false;
+    }
+    ScopeEmitEvent.prototype = Object.create(ScopeEventBase.prototype);
+    ScopeEmitEvent.prototype.constructor = ScopeEmitEvent;
+    ScopeEmitEvent.prototype.stopPropagation = function() {
+      this.$$propagationStopped = true;
+    };
+
+    function ScopeBroadcastEvent(name, targetScope) {
+      ScopeEventBase.call(this, name, targetScope);
+    }
+    ScopeBroadcastEvent.prototype = Object.create(ScopeEventBase.prototype);
+    ScopeBroadcastEvent.prototype.constructor = ScopeBroadcastEvent;
+
     /**
      * @ngdoc type
      * @name $rootScope.Scope
@@ -1295,16 +1322,7 @@ function $RootScopeProvider() {
         var empty = [],
             namedListeners,
             scope = this,
-            stopPropagation = false,
-            event = {
-              name: name,
-              targetScope: scope,
-              stopPropagation: function() {stopPropagation = true;},
-              preventDefault: function() {
-                event.defaultPrevented = true;
-              },
-              defaultPrevented: false
-            },
+            event = new ScopeEmitEvent(name, scope),
             listenerArgs,
             i, length;
 
@@ -1336,7 +1354,7 @@ function $RootScopeProvider() {
             }
           }
           //if any listener on the current scope stops propagation, prevent bubbling
-          if (stopPropagation) {
+          if (event.$$propagationStopped) {
             break;
           }
           //traverse upwards
@@ -1374,14 +1392,7 @@ function $RootScopeProvider() {
         var target = this,
             current = target,
             next = target,
-            event = {
-              name: name,
-              targetScope: target,
-              preventDefault: function() {
-                event.defaultPrevented = true;
-              },
-              defaultPrevented: false
-            };
+            event = new ScopeBroadcastEvent(name, target);
 
         if (!target.$$listenerCount[name]) return event;
 
