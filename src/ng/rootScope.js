@@ -1305,8 +1305,16 @@ function $RootScopeProvider() {
               },
               defaultPrevented: false
             },
-            listenerArgs = concat([event], arguments, 1),
+            listenerArgs,
             i, length;
+
+        // Support: $$listenerCount only tracks listeners registered at or below a given scope
+        // (it is incremented upwards from the registering scope to $rootScope). $emit walks
+        // upwards toward $rootScope, so the only listener-count check that is always safe here
+        // is on $rootScope itself, which aggregates listeners for the entire scope tree.
+        if (!scope.$root.$$listenerCount[name]) return event;
+
+        listenerArgs = concat([event], arguments, 1);
 
         do {
           namedListeners = scope.$$listeners[name] || empty;
