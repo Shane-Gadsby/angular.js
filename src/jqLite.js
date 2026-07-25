@@ -480,61 +480,38 @@ function jqLiteHasClass(element, selector) {
       indexOf(' ' + selector + ' ') > -1);
 }
 
-function jqLiteClassTokenSet(element) {
-  var classText = (element.getAttribute('class') || '').replace(/[\n\t]/g, ' ');
-  var tokens = classText.split(' ');
-  var classSet = new Set();
-  for (var i = 0, ii = tokens.length; i < ii; i++) {
-    var token = trim(tokens[i]);
-    if (token) classSet.add(token);
-  }
-  return classSet;
-}
-
-function jqLiteJoinClassTokenSet(classSet) {
-  var result = '';
-  classSet.forEach(function(cssClass) {
-    result += (result ? ' ' : '') + cssClass;
-  });
-  return result;
-}
-
 function jqLiteRemoveClass(element, cssClasses) {
   if (cssClasses && element.setAttribute) {
-    var classSet = jqLiteClassTokenSet(element);
-    var toRemove = cssClasses.split(' ');
-    var changed = false;
+    var existingClasses = (' ' + (element.getAttribute('class') || '') + ' ')
+                            .replace(/[\n\t]/g, ' ');
+    var newClasses = existingClasses;
 
-    for (var i = 0, ii = toRemove.length; i < ii; i++) {
-      var cssClass = trim(toRemove[i]);
-      if (cssClass && classSet.has(cssClass)) {
-        classSet.delete(cssClass);
-        changed = true;
-      }
-    }
+    forEach(cssClasses.split(' '), function(cssClass) {
+      cssClass = trim(cssClass);
+      newClasses = newClasses.replace(' ' + cssClass + ' ', ' ');
+    });
 
-    if (changed) {
-      element.setAttribute('class', jqLiteJoinClassTokenSet(classSet));
+    if (newClasses !== existingClasses) {
+      element.setAttribute('class', trim(newClasses));
     }
   }
 }
 
 function jqLiteAddClass(element, cssClasses) {
   if (cssClasses && element.setAttribute) {
-    var classSet = jqLiteClassTokenSet(element);
-    var toAdd = cssClasses.split(' ');
-    var changed = false;
+    var existingClasses = (' ' + (element.getAttribute('class') || '') + ' ')
+                            .replace(/[\n\t]/g, ' ');
+    var newClasses = existingClasses;
 
-    for (var i = 0, ii = toAdd.length; i < ii; i++) {
-      var cssClass = trim(toAdd[i]);
-      if (cssClass && !classSet.has(cssClass)) {
-        classSet.add(cssClass);
-        changed = true;
+    forEach(cssClasses.split(' '), function(cssClass) {
+      cssClass = trim(cssClass);
+      if (newClasses.indexOf(' ' + cssClass + ' ') === -1) {
+        newClasses += cssClass + ' ';
       }
-    }
+    });
 
-    if (changed) {
-      element.setAttribute('class', jqLiteJoinClassTokenSet(classSet));
+    if (newClasses !== existingClasses) {
+      element.setAttribute('class', trim(newClasses));
     }
   }
 }

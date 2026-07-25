@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v1.8.3-local.0d75c3987
+ * @license AngularJS v1.8.3-local.63a88234c
  * (c) 2010-2020 Google LLC. http://angularjs.org
  * License: MIT
  */
@@ -99,7 +99,7 @@ function isValidObjectMaxDepth(maxDepth) {
 function minErr(module, ErrorConstructor) {
   ErrorConstructor = ErrorConstructor || Error;
 
-  var url = 'https://errors.angularjs.org/1.8.3-local.0d75c3987/';
+  var url = 'https://errors.angularjs.org/1.8.3-local.63a88234c/';
   var regex = url.replace('.', '\\.') + '[\\s\\S]*';
   var errRegExp = new RegExp(regex, 'g');
 
@@ -2828,7 +2828,7 @@ function toDebugString(obj, maxDepth) {
 var version = {
   // These placeholder strings will be replaced by grunt's `build` task.
   // They need to be double- or single-quoted.
-  full: '1.8.3-local.0d75c3987',
+  full: '1.8.3-local.63a88234c',
   major: 1,
   minor: 8,
   dot: 3,
@@ -2983,7 +2983,7 @@ function publishExternalAPI(angular) {
       });
     }
   ])
-  .info({ angularVersion: '1.8.3-local.0d75c3987' });
+  .info({ angularVersion: '1.8.3-local.63a88234c' });
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -3466,61 +3466,38 @@ function jqLiteHasClass(element, selector) {
       indexOf(' ' + selector + ' ') > -1);
 }
 
-function jqLiteClassTokenSet(element) {
-  var classText = (element.getAttribute('class') || '').replace(/[\n\t]/g, ' ');
-  var tokens = classText.split(' ');
-  var classSet = new Set();
-  for (var i = 0, ii = tokens.length; i < ii; i++) {
-    var token = trim(tokens[i]);
-    if (token) classSet.add(token);
-  }
-  return classSet;
-}
-
-function jqLiteJoinClassTokenSet(classSet) {
-  var result = '';
-  classSet.forEach(function(cssClass) {
-    result += (result ? ' ' : '') + cssClass;
-  });
-  return result;
-}
-
 function jqLiteRemoveClass(element, cssClasses) {
   if (cssClasses && element.setAttribute) {
-    var classSet = jqLiteClassTokenSet(element);
-    var toRemove = cssClasses.split(' ');
-    var changed = false;
+    var existingClasses = (' ' + (element.getAttribute('class') || '') + ' ')
+                            .replace(/[\n\t]/g, ' ');
+    var newClasses = existingClasses;
 
-    for (var i = 0, ii = toRemove.length; i < ii; i++) {
-      var cssClass = trim(toRemove[i]);
-      if (cssClass && classSet.has(cssClass)) {
-        classSet.delete(cssClass);
-        changed = true;
-      }
-    }
+    forEach(cssClasses.split(' '), function(cssClass) {
+      cssClass = trim(cssClass);
+      newClasses = newClasses.replace(' ' + cssClass + ' ', ' ');
+    });
 
-    if (changed) {
-      element.setAttribute('class', jqLiteJoinClassTokenSet(classSet));
+    if (newClasses !== existingClasses) {
+      element.setAttribute('class', trim(newClasses));
     }
   }
 }
 
 function jqLiteAddClass(element, cssClasses) {
   if (cssClasses && element.setAttribute) {
-    var classSet = jqLiteClassTokenSet(element);
-    var toAdd = cssClasses.split(' ');
-    var changed = false;
+    var existingClasses = (' ' + (element.getAttribute('class') || '') + ' ')
+                            .replace(/[\n\t]/g, ' ');
+    var newClasses = existingClasses;
 
-    for (var i = 0, ii = toAdd.length; i < ii; i++) {
-      var cssClass = trim(toAdd[i]);
-      if (cssClass && !classSet.has(cssClass)) {
-        classSet.add(cssClass);
-        changed = true;
+    forEach(cssClasses.split(' '), function(cssClass) {
+      cssClass = trim(cssClass);
+      if (newClasses.indexOf(' ' + cssClass + ' ') === -1) {
+        newClasses += cssClass + ' ';
       }
-    }
+    });
 
-    if (changed) {
-      element.setAttribute('class', jqLiteJoinClassTokenSet(classSet));
+    if (newClasses !== existingClasses) {
+      element.setAttribute('class', trim(newClasses));
     }
   }
 }
