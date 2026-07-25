@@ -1,5 +1,8 @@
 /build/
 /benchpress-build/
+/angular.min.js
+/angular.min.js.map
+/angular-csp.css
 .DS_Store
 gen_docs.disable
 test.disable

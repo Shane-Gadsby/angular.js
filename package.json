@@ -17,7 +17,8 @@
     "commit": "git-cz",
     "test-i18n": "jasmine-node i18n/spec",
     "test-i18n-ucd": "jasmine-node i18n/ucd/spec",
-    "build:lib": "node scripts/build-lib.js"
+    "build:lib": "node scripts/build-lib.js",
+    "postinstall": "node scripts/build-lib.js"
   },
   "devDependencies": {
     "angular-benchpress": "0.x.x",

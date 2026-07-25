@@ -246,6 +246,16 @@ function main() {
     console.log('Skipping minification (--no-minify)');
   }
 
+  // Also expose the two files consumers expect to find at the package root
+  // (e.g. `node_modules/angular/angular.min.js`), alongside package.json.
+  ['angular.min.js', 'angular-csp.css'].forEach(function(file) {
+    var src = path.join(BUILD_DIR, file);
+    if (fs.existsSync(src)) {
+      fs.copyFileSync(src, abs(file));
+      console.log('Copied build/' + file + ' to ' + file + '.');
+    }
+  });
+
   console.log('Done.');
 }
 
