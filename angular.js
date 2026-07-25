@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v1.8.3-local.63a88234c
+ * @license AngularJS v1.8.3-local.74a4ce1a2
  * (c) 2010-2020 Google LLC. http://angularjs.org
  * License: MIT
  */
@@ -99,7 +99,7 @@ function isValidObjectMaxDepth(maxDepth) {
 function minErr(module, ErrorConstructor) {
   ErrorConstructor = ErrorConstructor || Error;
 
-  var url = 'https://errors.angularjs.org/1.8.3-local.63a88234c/';
+  var url = 'https://errors.angularjs.org/1.8.3-local.74a4ce1a2/';
   var regex = url.replace('.', '\\.') + '[\\s\\S]*';
   var errRegExp = new RegExp(regex, 'g');
 
@@ -2828,7 +2828,7 @@ function toDebugString(obj, maxDepth) {
 var version = {
   // These placeholder strings will be replaced by grunt's `build` task.
   // They need to be double- or single-quoted.
-  full: '1.8.3-local.63a88234c',
+  full: '1.8.3-local.74a4ce1a2',
   major: 1,
   minor: 8,
   dot: 3,
@@ -2983,7 +2983,7 @@ function publishExternalAPI(angular) {
       });
     }
   ])
-  .info({ angularVersion: '1.8.3-local.63a88234c' });
+  .info({ angularVersion: '1.8.3-local.74a4ce1a2' });
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
