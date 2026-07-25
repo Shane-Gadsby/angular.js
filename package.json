@@ -1,5 +1,16 @@
 {
   "name": "angular",
+  "version": "1.8.3",
+  "main": "index.js",
+  "files": [
+    "index.js",
+    "angularFiles.js",
+    "scripts/build-lib.js",
+    "src",
+    "css/angular.css",
+    "vendor/closure-compiler/compiler.jar",
+    "vendor/ng-closure-runner/ngcompiler.jar"
+  ],
   "license": "MIT",
   "branchVersion": "^1.8.0",
   "branchPattern": "1.8.*",
